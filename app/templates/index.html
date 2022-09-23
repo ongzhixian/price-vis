@@ -1,72 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-
-  <!-- Basic Page Needs
-  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-  <meta charset="utf-8">
-  <title>Your page title here :)</title>
-  <meta name="description" content="">
-  <meta name="author" content="">
-
-  <!-- Mobile Specific Metas
-  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <!-- FONT
-  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
-
-  <!-- CSS
-  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-  <link rel="stylesheet" href="css/normalize.css">
-  <link rel="stylesheet" href="css/skeleton.css">
-
-  <!-- Favicon
-  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-  <link rel="icon" type="image/png" href="images/favicon.png">
-
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Home page">
+    <meta name="author" content="Ong Zhi Xian">
+    <title>Home</title>
+    <link href="https://fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="css/normalize.css" />
+    <link rel="stylesheet" href="css/skeleton.css" />
+    <link rel="icon" type="image/png" href="images/favicon.png" />
 </head>
+
 <body>
+    <div class="container">
+        <div class="row">
+            <div class="one-half column">
+                <h4>Home Page</h4>
 
-  <!-- Primary Page Layout
-  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-  <div class="container">
-    <div class="row">
-      <div class="one-half column" style="margin-top: 25%">
-        <h4>Basic Page</h4>
+                <p id="log"></p>
+                <button id="send" type="button">Send!</button>
 
-        <h1>Send:</h1>                                                               
-        <form method='POST' action='#'>                                              
-            <textarea name='data' id="data"></textarea>                              
-            <div><input type='submit'></div>                                         
-        </form>                                                                      
-        <h1>Receive:</h1>                                                            
-        <div id="log"></div>    
-        
-      </div>
+            </div>
+        </div>
     </div>
-  </div>
 
-<!-- End Document
-  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-<script type="text/javascript" src="http://code.jquery.com/jquery-1.4.2.min.js"></script>
-<script type="text/javascript" charset="utf-8">
-$(document).ready(function() {
-    $('form').submit(function(event) {
-        ws.send($('#data').val());
-        return false; 
-    });
+    <script src="http://code.jquery.com/jquery-1.8.2.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            if ("WebSocket" in window) {
+                ws = new WebSocket("ws://" + document.domain + ":5000/api2");
+                ws.onmessage = function (msg) {
+                    var message = JSON.parse(msg.data);
+                    $("p#log").html(message.output);
+                };
+            };
 
-    if ("WebSocket" in window) {
-        ws = new WebSocket("wss://" + document.domain + ":5000/ws");
-        ws.onmessage = function (msg) {
-            $("#log").append("<p>"+msg.data+"</p>");
-        };
-    } else {
-        alert("WebSocket not supported");
-    }                                                                    
-});
-</script>                           
+            // Bind send button to websocket
+            $("button#send").live("click", function () {
+                ws.send(JSON.stringify({ 'output': 'Sent from my browser!' }));
+            });
+
+            // Cleanly close websocket when unload window
+            window.onbeforeunload = function () {
+                ws.onclose = function () { }; // disable onclose handler first
+                ws.close()
+            };
+        });
+    </script>
 </body>
+
 </html>
