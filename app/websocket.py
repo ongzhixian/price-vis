@@ -6,6 +6,7 @@ from flask import g, render_template, request, session, redirect
 
 # def handle_websocket(ws):
 #     message = ws.receive()
+# #     if not ws.closed:
 #     if message is not None:
 #         message = json.loads(message)
 
